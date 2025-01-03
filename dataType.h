@@ -3,8 +3,7 @@
 #include <ctime>     
 using namespace std;
 
-class Site {
-public:
+struct Site {
 	int siteCode;
 	double longitude;
 	double latitude;
@@ -12,8 +11,7 @@ public:
 	vector<int> relatedRouteCode;
 };
 
-class Route {
-public:
+struct Route {
 	int routeCode;
 	int relatedSites[2];
 	double distance;
@@ -21,8 +19,8 @@ public:
 	tm duration;
 };
 
-class Flight {
-public:
+struct Flight {
+	bool ifValidFlight = false;
 	int startSiteCode;
 	int endSiteCode;
 	//Í¾¾­º½Ïß
@@ -32,6 +30,14 @@ public:
 	}routeHead;
 	tm departureTime;
 	tm landingTime;
+	int remainingTickets[3];
 	double totalPrice[3];
 	tm totalDuration;
+};
+
+struct Ticket {
+	int flightCode;
+	int customerID;
+	char customerName[20];
+	tm boughtTime;
 };
