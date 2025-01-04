@@ -13,11 +13,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b393d1f2-bfe5-48ed-816c-bd275dd1aa0c" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/Flight.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Flight.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Flight.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Flight.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Flight.exe" beforeDir="false" afterPath="$PROJECT_DIR$/Flight.exe" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sites.csv" beforeDir="false" afterPath="$PROJECT_DIR$/sites.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

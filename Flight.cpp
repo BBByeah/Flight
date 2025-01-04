@@ -367,6 +367,9 @@ public:
 
 class SavingSystem {
 public:
+	// Save all data to CSV files
+	// Including site information (sites.csv), route information (routes.csv),
+	// flight information (flights.csv) and ticket information (tickets.csv)
 	void SavingToFile() {
 		// Save site information
 		ofstream siteCsv("sites.csv");
@@ -429,6 +432,10 @@ public:
 		ticketCsv.close();
 	}
 
+	// Read all data from CSV files
+	// Including site information (sites.csv), route information (routes.csv),
+	// flight information (flights.csv) and ticket information (tickets.csv)
+	// Will output error messages if file opening fails or data format is incorrect
 	void ReadingFromFile() {
 		string line;
 		vector<string> row;
