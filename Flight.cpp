@@ -17,6 +17,16 @@ vector<int> vectorIndex;
 
 
 
+
+//Route testRouteA = { 1, {1,2}, 22 };
+//Route testRouteB = { };
+//
+//Flight testFlightA = { };
+//Flight testFlightB = { };
+//
+//Ticket testTicketA = { };
+//Ticket testTicketB = { };
+
 enum SortType {
 	ByTimeLength,
 	ByLeaveTime,
@@ -107,7 +117,7 @@ vector<int> SortByByName(vector<string> originVector) {
 	return finalIndexVector;
 }*/
 
-vector<int> SortByByCode(vector<int> originVector) {}
+//vector<int> SortByByCode(vector<int> originVector) {}
 
 //TODO
 class SiteSystem {
@@ -449,5 +459,10 @@ void HomeScreen() {
 
 int main()
 {
+	Site testSiteA = { 1, 11, 11, "TSA",{1,2} };
+	Site testSiteB = { 2, 22, 22, "TSB",{3,4} };
+	
+	siteList.push_back(testSiteA);
+	siteList.push_back(testSiteB);
 	HomeScreen();
 }
