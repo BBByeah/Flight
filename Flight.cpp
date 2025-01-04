@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <conio.h>
 #include <Windows.h>
+#include <string>
 
 using namespace std;
 
@@ -12,15 +13,101 @@ vector<Site> siteList;
 vector<Route> routeList;
 vector<Flight> flightList;
 vector<Ticket> ticketList;
+vector<int> vectorIndex;
+
+
 
 enum SortType {
-	ByTime,
-	ByName
+	ByTimeLength,
+	ByLeaveTime,
+	ByName,
+	ByCode
 };
 enum QueryType {
 	Shortest,
 	Cheapest
 };
+
+vector<int> SortByTimeLength(vector<time_t> originVector) {
+	vector<int> originIndexVector;
+	int i = 0;
+
+	//初始化传入下标vector
+	for (auto trashVar : originVector) {
+		originIndexVector.push_back(i);
+		i++;
+	}
+	vector<int> finalIndexVector;
+	int elementAmount = size(originIndexVector);
+	for (int loopTime = 0; loopTime != elementAmount; loopTime++) {
+		time_t smallestTime = 0;
+		int elementIndex = 0;
+		int smallestIndex = 0;
+		for (auto nowTime : originVector) {
+			if (smallestTime < nowTime) {
+				smallestIndex = elementIndex;
+			}
+			elementIndex++;
+		}
+		finalIndexVector.push_back(smallestIndex);
+	}
+	return finalIndexVector;
+}
+
+vector<int> SortByLeaveTime(vector<time_t> originVector){
+	vector<int> originIndexVector;
+	int i = 0;
+
+	//初始化传入下标vector
+	for (auto trashVar : originVector) {
+		originIndexVector.push_back(i);
+		i++;
+	}
+	vector<int> finalIndexVector;
+	int elementAmount = size(originIndexVector);
+	for (int loopTime = 0; loopTime != elementAmount; loopTime++) {
+		time_t cloestTime = 0;
+		int elementIndex = 0;
+		int smallestIndex = 0;
+		for (auto nowTime : originVector) {
+			if (cloestTime > nowTime) {
+				smallestIndex = elementIndex;
+			}
+			elementIndex++;
+		}
+		finalIndexVector.push_back(smallestIndex);
+	}
+	return finalIndexVector;
+}
+
+/*
+vector<int> SortByByName(vector<string> originVector) {
+	vector<int> originIndexVector;
+	int i = 0;
+
+	//初始化传入下标vector
+	for (auto trashVar : originVector) {
+		originIndexVector.push_back(i);
+		i++;
+	}
+	vector<int> finalIndexVector;
+	int elementAmount = size(originIndexVector);
+	for (int loopTime = 0; loopTime != elementAmount; loopTime++) {
+		string smallestStr = originVector[0];
+		int elementIndex = 0;
+		int smallestIndex = 0;
+		for (auto nowStr : originVector) {
+			if (compare(nowStr,smallestStr) <= 0) {
+				smallestIndex = elementIndex;
+			}
+			elementIndex++;
+		}
+		finalIndexVector.push_back(smallestIndex);
+	}
+	return finalIndexVector;
+}*/
+
+vector<int> SortByByCode(vector<int> originVector) {}
 
 //TODO
 class SiteSystem {
