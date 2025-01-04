@@ -1,10 +1,14 @@
-﻿#include <iostream>
+﻿#include <Windows.h>
+#include <conio.h>
+
+#include <stdexcept>
+#include <limits>
+#include <iostream>
 #include "dataType.h"
 #include <vector>
 #include <iomanip>
 #include <stdlib.h>
-#include <conio.h>
-#include <Windows.h>
+#include <fstream>
 #include <string>
 
 using namespace std;
@@ -191,7 +195,6 @@ public:
 		siteList.clear();
 		siteList = newSiteList;
 	}
-
 	void ShowSiteList() {
 		bool ifEnd = false;
 		bool ifShow = true;
@@ -200,7 +203,7 @@ public:
 			cout << "1.List by code" << endl
 				<< "2.List by name" << endl
 				<< "3.List directly" << endl
-				<< "4.Back";
+				<< "4.Back" << endl;
 			cin >> action;
 			system("cls");
 			switch (action) {
@@ -328,17 +331,241 @@ public:
 	}
 };
 
-//TODO
 class SavingSystem {
 public:
-	//TODO
 	void SavingToFile() {
+		// Save site information
+		ofstream siteCsv("sites.csv");
+		siteCsv << "SiteCode,Longitude,Latitude,SiteName,RelatedRouteCode\n";
+		for (auto site : siteList) {
+			siteCsv << site.siteCode << "," 
+				<< site.longitude << ","
+				<< site.latitude << ","
+				<< site.siteName;
+			for (auto routeCode : site.relatedRouteCode) {
+				siteCsv << "," << routeCode;
+			}
+			siteCsv << "\n";
+		}
+		siteCsv.close();
 
+		// Save route information
+		ofstream routeCsv("routes.csv"); 
+		routeCsv << "RouteCode,StartSite,EndSite,Distance,EconomyPrice,BusinessPrice,FirstClassPrice,Duration\n";
+		for (auto route : routeList) {
+			routeCsv << route.routeCode << ","
+				<< route.relatedSites[0] << ","
+				<< route.relatedSites[1] << ","
+				<< route.distance << ","
+				<< route.price[0] << ","
+				<< route.price[1] << ","
+				<< route.price[2] << ","
+				<< route.duration << "\n";
+		}
+		routeCsv.close();
+
+		// Save flight information
+		ofstream flightCsv("flights.csv");
+		flightCsv << "Status,StartSite,EndSite,DepartureTime,ArrivalTime,EconomyRemaining,BusinessRemaining,FirstClassRemaining,EconomyPrice,BusinessPrice,FirstClassPrice,TotalDuration\n";
+		for (auto flight : flightList) {
+			flightCsv << flight.ifValidFlight << ","
+				<< flight.startSiteCode << ","
+				<< flight.endSiteCode << ","
+				<< flight.departureTime << ","
+				<< flight.landingTime << ","
+				<< flight.remainingTickets[0] << ","
+				<< flight.remainingTickets[1] << ","
+				<< flight.remainingTickets[2] << ","
+				<< flight.totalPrice[0] << ","
+				<< flight.totalPrice[1] << ","
+				<< flight.totalPrice[2] << ","
+				<< flight.totalDuration << "\n";
+		}
+		flightCsv.close();
+
+		// Save ticket information
+		ofstream ticketCsv("tickets.csv");
+		ticketCsv << "FlightCode,CustomerID,CustomerName,PurchaseTime\n";
+		for (auto ticket : ticketList) {
+			ticketCsv << ticket.flightCode << ","
+				<< ticket.customerID << ","
+				<< ticket.customerName << ","
+				<< ticket.boughtTime << "\n";
+		}
+		ticketCsv.close();
 	}
 
-	//TODO
 	void ReadingFromFile() {
+		string line;
+		vector<string> row;
 
+		// Read site information
+		ifstream siteCsv("sites.csv");
+		if (!siteCsv.is_open()) {
+			cout << "Unable to open file: sites.csv" << endl;
+			return;
+		}
+		getline(siteCsv, line); // Skip header
+		while (getline(siteCsv, line)) {
+			try {
+				Site site;
+				size_t pos = 0;
+				string token;
+				int column = 0;
+				
+				while ((pos = line.find(",")) != string::npos) {
+					token = line.substr(0, pos);
+					switch (column) {
+						case 0: site.siteCode = stoi(token); break;
+						case 1: site.longitude = stod(token); break;
+						case 2: site.latitude = stod(token); break;
+						case 3: site.siteName = token; break;
+						default: 
+							if (!token.empty()) {
+								site.relatedRouteCode.push_back(stoi(token)); 
+							}
+							break;
+					}
+					line.erase(0, pos + 1);
+					column++;
+				}
+				if (!line.empty()) {
+					site.relatedRouteCode.push_back(stoi(line));
+				}
+				siteList.push_back(site);
+			} catch (const std::invalid_argument& e) {
+				cout << "Data format error in sites.csv" << endl;
+				siteCsv.close();
+				return;
+			}
+		}
+		siteCsv.close();
+
+		// Read route information
+		ifstream routeCsv("routes.csv");
+		if (!routeCsv.is_open()) {
+			cout << "Unable to open file: routes.csv" << endl;
+			return;
+		}
+		getline(routeCsv, line); // Skip header
+		while (getline(routeCsv, line)) {
+			try {
+				Route route;
+				size_t pos = 0;
+				string token;
+				int column = 0;
+				
+				while ((pos = line.find(",")) != string::npos) {
+					token = line.substr(0, pos);
+					if (!token.empty()) {
+						switch (column) {
+							case 0: route.routeCode = stoi(token); break;
+							case 1: route.relatedSites[0] = stoi(token); break;
+							case 2: route.relatedSites[1] = stoi(token); break;
+							case 3: route.distance = stod(token); break;
+							case 4: route.price[0] = stod(token); break;
+							case 5: route.price[1] = stod(token); break;
+							case 6: route.price[2] = stod(token); break;
+						}
+					}
+					line.erase(0, pos + 1);
+					column++;
+				}
+				if (!line.empty()) {
+					route.duration = stoll(line);
+				}
+				routeList.push_back(route);
+			} catch (const std::invalid_argument& e) {
+				cout << "Data format error in routes.csv" << endl;
+				routeCsv.close();
+				return;
+			}
+		}
+		routeCsv.close();
+
+		// Read flight information
+		ifstream flightCsv("flights.csv");
+		if (!flightCsv.is_open()) {
+			cout << "Unable to open file: flights.csv" << endl;
+			return;
+		}
+		getline(flightCsv, line); // Skip header
+		while (getline(flightCsv, line)) {
+			try {
+				Flight flight;
+				size_t pos = 0;
+				string token;
+				int column = 0;
+				
+				while ((pos = line.find(",")) != string::npos) {
+					token = line.substr(0, pos);
+					if (!token.empty()) {
+						switch (column) {
+							case 0: flight.ifValidFlight = (token == "1"); break;
+							case 1: flight.startSiteCode = stoi(token); break;
+							case 2: flight.endSiteCode = stoi(token); break;
+							case 3: flight.departureTime = stoll(token); break;
+							case 4: flight.landingTime = stoll(token); break;
+							case 5: flight.remainingTickets[0] = stoi(token); break;
+							case 6: flight.remainingTickets[1] = stoi(token); break;
+							case 7: flight.remainingTickets[2] = stoi(token); break;
+							case 8: flight.totalPrice[0] = stod(token); break;
+							case 9: flight.totalPrice[1] = stod(token); break;
+							case 10: flight.totalPrice[2] = stod(token); break;
+						}
+					}
+					line.erase(0, pos + 1);
+					column++;
+				}
+				if (!line.empty()) {
+					flight.totalDuration = stoll(line);
+				}
+				flightList.push_back(flight);
+			} catch (const std::invalid_argument& e) {
+				cout << "Data format error in flights.csv" << endl;
+				flightCsv.close();
+				return;
+			}
+		}
+		flightCsv.close();
+
+		// Read ticket information
+		ifstream ticketCsv("tickets.csv");
+		if (!ticketCsv.is_open()) {
+			cout << "Unable to open file: tickets.csv" << endl;
+			return;
+		}
+		getline(ticketCsv, line); // Skip header
+		while (getline(ticketCsv, line)) {
+			try {
+				Ticket ticket;
+				size_t pos = 0;
+				string token;
+				int column = 0;
+				
+				while ((pos = line.find(",")) != string::npos) {
+					token = line.substr(0, pos);
+					if (!token.empty()) {
+						switch (column) {
+							case 0: ticket.flightCode = stoi(token); break;
+							case 1: ticket.customerID = stoi(token); break;
+							case 2: strncpy(ticket.customerName, token.c_str(), sizeof(ticket.customerName) - 1); break;
+						}
+					}
+					line.erase(0, pos + 1);
+					column++;
+				}
+				if (!line.empty()) {
+					ticket.boughtTime = stoll(line);
+				}
+				ticketList.push_back(ticket);
+			} catch (const std::invalid_argument& e) {
+				cout << "Data format error in tickets.csv" << endl;
+				ticketCsv.close();
+				return;
+			}
+		}
+		ticketCsv.close();
 	}
 };
 
@@ -512,6 +739,7 @@ void TicketingScreen() {
 void HomeScreen() {
 	bool ifExit = false;
 	int action = 0;
+	SavingSystem savingSystem;
 	while (ifExit != true) {
 		cout << "1.Site System" << endl
 			 << "2.Route System" << endl
@@ -538,10 +766,16 @@ void HomeScreen() {
 			TicketingScreen();
 			break;
 		case 5:
-			//TODO
+			savingSystem.SavingToFile();
+			cout << "Save success!" << endl;
+			_getch();
+			system("cls");
 			break;
 		case 6:
-			//TODO
+			savingSystem.ReadingFromFile();
+			cout << "Read success!" << endl;
+			_getch();
+			system("cls");
 			break;
 		case 7:
 			ifExit = true;
@@ -556,18 +790,20 @@ void HomeScreen() {
 
 int main()
 {
+
 	Site testSiteA = { 3, 1, 1, "A",{1,2} };
 	Site testSiteB = { 1, 2, 2, "C",{3,4} };
 	Site testSiteC = { 2, 3, 3, "B" };
 	Site testSiteD = { 3, 4, 4, "A",{1,2} };
 	Site testSiteE = { 1, 5, 5, "C",{3,4} };
 	Site testSiteF = { 2, 6, 6, "B" };
-	
+
 	siteList.push_back(testSiteA);
 	siteList.push_back(testSiteB);
 	siteList.push_back(testSiteC);
 	siteList.push_back(testSiteD);
 	siteList.push_back(testSiteE);
 	siteList.push_back(testSiteF);
+
 	HomeScreen();
 }
