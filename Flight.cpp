@@ -30,6 +30,7 @@ enum QueryType {
 	Cheapest
 };
 
+
 vector<int> SortByTimeLength(vector<time_t> originVector) {
 	vector<int> originIndexVector;
 	int i = 0;
@@ -45,14 +46,26 @@ vector<int> SortByTimeLength(vector<time_t> originVector) {
 		time_t smallestTime = 0;
 		int elementIndex = 0;
 		int smallestIndex = 0;
+
+		//初始化变量为未选择过的元素对应初始值
+		int j = 0;
+		for (time_t initTime : originVector) {
+			if (initTime != -1) {
+				smallestTime = initTime;
+				smallestIndex = j;
+				break;
+			}
+			j++;
+		}
 		for (auto nowTime : originVector) {
-			if (smallestTime < nowTime) {
+			if (smallestTime > nowTime) {
 				smallestIndex = elementIndex;
+				smallestTime = nowTime;
 			}
 			elementIndex++;
 		}
-		finalIndexVector.push_back(smallestIndex);
 		originVector[smallestIndex] = -1;
+		finalIndexVector.push_back(smallestIndex);
 	}
 	return finalIndexVector;
 }
@@ -72,14 +85,26 @@ vector<int> SortByLeaveTime(vector<time_t> originVector){
 		time_t cloestTime = 0;
 		int elementIndex = 0;
 		int smallestIndex = 0;
+
+		//初始化变量为未选择过的元素对应初始值
+		int j = 0;
+		for (time_t initTime : originVector) {
+			if (initTime != -1) {
+				cloestTime = initTime;
+				smallestIndex = j;
+				break;
+			}
+			j++;
+		}
 		for (auto nowTime : originVector) {
-			if (cloestTime >= nowTime) {
+			if (cloestTime > nowTime) {
 				smallestIndex = elementIndex;
+				cloestTime = nowTime;
 			}
 			elementIndex++;
 		}
-		finalIndexVector.push_back(smallestIndex);
 		originVector[smallestIndex] = -1;
+		finalIndexVector.push_back(smallestIndex);
 	}
 	return finalIndexVector;
 }
@@ -98,14 +123,17 @@ vector<int> SortByByName(vector<string> originVector) {
 	for (int loopTime = 0; loopTime != elementAmount; loopTime++) {
 		string smallestStr;
 		int elementIndex = 0;
-		int smallestIndex = 0;
+		int smallestIndex;
 
-		//初始化最小值
+		//初始化变量为未选择过的元素对应初始值
+		int j = 0;
 		for (string initStr : originVector) {
 			if (initStr != "-1") {
 				smallestStr = initStr;
+				smallestIndex = j;
 				break;
 			}
+			j++;
 		}
 
 		for (auto nowStr : originVector) {
@@ -136,14 +164,17 @@ vector<int> SortByByCode(vector<int> originVector) {
 	for (int loopTime = 0; loopTime != elementAmount; loopTime++) {
 		int smallestCode;
 		int elementIndex = 0;
-		int smallestIndex = 0;
+		int smallestIndex;
 
-		//初始化最小值
+		//初始化变量为未选择过的元素对应初始值
+		int j = 0;
 		for (int initCode : originVector) {
 			if (initCode != -1) {
 				smallestCode = initCode;
+				smallestIndex = j;
 				break;
 			}
+			j++;
 		}
 
 		for (auto nowCode : originVector) {
@@ -155,9 +186,6 @@ vector<int> SortByByCode(vector<int> originVector) {
 		}
 		originVector[smallestIndex] = -1;
 		finalIndexVector.push_back(smallestIndex);
-	}
-	for (int index : finalIndexVector) {
-		cout << index;
 	}
 	return finalIndexVector;
 }
@@ -205,20 +233,25 @@ public:
 				<< "3.List directly" << endl
 				<< "4.Back" << endl;
 			cin >> action;
+			Sleep(100);
 			system("cls");
 			switch (action) {
 			case 1:
+				Sleep(100);
 				SortSiteListByCode();
 				ifEnd = true;
 				break;
 			case 2:
+				Sleep(100);
 				SortSiteListByName();
 				ifEnd = true;
 				break;
 			case 3:
+				Sleep(100);
 				ifEnd = true;
 				break;
 			case 4:
+				Sleep(100);
 				ifShow = false;
 				ifEnd = true;
 				break;
@@ -226,6 +259,7 @@ public:
 		}
 
 		if (ifShow == true) {
+			Sleep(100);
 			cout << "Site Code   " << "Site Name           " << "longitude " << "latitude" << endl;
 			for (Site site : siteList) {
 				cout << left << setw(12) << site.siteCode;
@@ -399,6 +433,12 @@ public:
 		string line;
 		vector<string> row;
 
+		// Clear current data
+		siteList.clear();
+		routeList.clear();
+		flightList.clear();
+		ticketList.clear();
+
 		// Read site information
 		ifstream siteCsv("sites.csv");
 		if (!siteCsv.is_open()) {
@@ -409,34 +449,41 @@ public:
 		while (getline(siteCsv, line)) {
 			try {
 				Site site;
-				size_t pos = 0;
+				stringstream ss(line);
 				string token;
-				int column = 0;
-				
-				while ((pos = line.find(",")) != string::npos) {
-					token = line.substr(0, pos);
-					switch (column) {
-						case 0: site.siteCode = stoi(token); break;
-						case 1: site.longitude = stod(token); break;
-						case 2: site.latitude = stod(token); break;
-						case 3: site.siteName = token; break;
-						default: 
-							if (!token.empty()) {
-								site.relatedRouteCode.push_back(stoi(token)); 
-							}
-							break;
+
+				// Read site code
+				if (getline(ss, token, ',')) {
+					site.siteCode = stoi(token);
+				}
+
+				// Read longitude
+				if (getline(ss, token, ',')) {
+					site.longitude = stod(token);
+				}
+
+				// Read latitude
+				if (getline(ss, token, ',')) {
+					site.latitude = stod(token);
+				}
+
+				// Read site name
+				if (getline(ss, token, ',')) {
+					site.siteName = token;
+				}
+
+				// Read related route codes
+				while (getline(ss, token, ',')) {
+					if (!token.empty()) {
+						site.relatedRouteCode.push_back(stoi(token));
 					}
-					line.erase(0, pos + 1);
-					column++;
 				}
-				if (!line.empty()) {
-					site.relatedRouteCode.push_back(stoi(line));
-				}
+
 				siteList.push_back(site);
-			} catch (const std::invalid_argument& e) {
-				cout << "Data format error in sites.csv" << endl;
-				siteCsv.close();
-				return;
+			}
+			catch (const exception& e) {
+				cout << "Site data format error: " << e.what() << endl;
+				continue;
 			}
 		}
 		siteCsv.close();
@@ -451,34 +498,23 @@ public:
 		while (getline(routeCsv, line)) {
 			try {
 				Route route;
-				size_t pos = 0;
+				stringstream ss(line);
 				string token;
-				int column = 0;
-				
-				while ((pos = line.find(",")) != string::npos) {
-					token = line.substr(0, pos);
-					if (!token.empty()) {
-						switch (column) {
-							case 0: route.routeCode = stoi(token); break;
-							case 1: route.relatedSites[0] = stoi(token); break;
-							case 2: route.relatedSites[1] = stoi(token); break;
-							case 3: route.distance = stod(token); break;
-							case 4: route.price[0] = stod(token); break;
-							case 5: route.price[1] = stod(token); break;
-							case 6: route.price[2] = stod(token); break;
-						}
-					}
-					line.erase(0, pos + 1);
-					column++;
-				}
-				if (!line.empty()) {
-					route.duration = stoll(line);
-				}
+
+				if (getline(ss, token, ',')) route.routeCode = stoi(token);
+				if (getline(ss, token, ',')) route.relatedSites[0] = stoi(token);
+				if (getline(ss, token, ',')) route.relatedSites[1] = stoi(token);
+				if (getline(ss, token, ',')) route.distance = stod(token);
+				if (getline(ss, token, ',')) route.price[0] = stod(token);
+				if (getline(ss, token, ',')) route.price[1] = stod(token);
+				if (getline(ss, token, ',')) route.price[2] = stod(token);
+				if (getline(ss, token, ',')) route.duration = stoll(token);
+
 				routeList.push_back(route);
-			} catch (const std::invalid_argument& e) {
-				cout << "Data format error in routes.csv" << endl;
-				routeCsv.close();
-				return;
+			}
+			catch (const exception& e) {
+				cout << "Route data format error: " << e.what() << endl;
+				continue;
 			}
 		}
 		routeCsv.close();
@@ -493,38 +529,27 @@ public:
 		while (getline(flightCsv, line)) {
 			try {
 				Flight flight;
-				size_t pos = 0;
+				stringstream ss(line);
 				string token;
-				int column = 0;
-				
-				while ((pos = line.find(",")) != string::npos) {
-					token = line.substr(0, pos);
-					if (!token.empty()) {
-						switch (column) {
-							case 0: flight.ifValidFlight = (token == "1"); break;
-							case 1: flight.startSiteCode = stoi(token); break;
-							case 2: flight.endSiteCode = stoi(token); break;
-							case 3: flight.departureTime = stoll(token); break;
-							case 4: flight.landingTime = stoll(token); break;
-							case 5: flight.remainingTickets[0] = stoi(token); break;
-							case 6: flight.remainingTickets[1] = stoi(token); break;
-							case 7: flight.remainingTickets[2] = stoi(token); break;
-							case 8: flight.totalPrice[0] = stod(token); break;
-							case 9: flight.totalPrice[1] = stod(token); break;
-							case 10: flight.totalPrice[2] = stod(token); break;
-						}
-					}
-					line.erase(0, pos + 1);
-					column++;
-				}
-				if (!line.empty()) {
-					flight.totalDuration = stoll(line);
-				}
+
+				if (getline(ss, token, ',')) flight.ifValidFlight = (token == "1");
+				if (getline(ss, token, ',')) flight.startSiteCode = stoi(token);
+				if (getline(ss, token, ',')) flight.endSiteCode = stoi(token);
+				if (getline(ss, token, ',')) flight.departureTime = stoll(token);
+				if (getline(ss, token, ',')) flight.landingTime = stoll(token);
+				if (getline(ss, token, ',')) flight.remainingTickets[0] = stoi(token);
+				if (getline(ss, token, ',')) flight.remainingTickets[1] = stoi(token);
+				if (getline(ss, token, ',')) flight.remainingTickets[2] = stoi(token);
+				if (getline(ss, token, ',')) flight.totalPrice[0] = stod(token);
+				if (getline(ss, token, ',')) flight.totalPrice[1] = stod(token);
+				if (getline(ss, token, ',')) flight.totalPrice[2] = stod(token);
+				if (getline(ss, token, ',')) flight.totalDuration = stoll(token);
+
 				flightList.push_back(flight);
-			} catch (const std::invalid_argument& e) {
-				cout << "Data format error in flights.csv" << endl;
-				flightCsv.close();
-				return;
+			}
+			catch (const exception& e) {
+				cout << "Flight data format error: " << e.what() << endl;
+				continue;
 			}
 		}
 		flightCsv.close();
@@ -539,30 +564,22 @@ public:
 		while (getline(ticketCsv, line)) {
 			try {
 				Ticket ticket;
-				size_t pos = 0;
+				stringstream ss(line);
 				string token;
-				int column = 0;
-				
-				while ((pos = line.find(",")) != string::npos) {
-					token = line.substr(0, pos);
-					if (!token.empty()) {
-						switch (column) {
-							case 0: ticket.flightCode = stoi(token); break;
-							case 1: ticket.customerID = stoi(token); break;
-							case 2: strncpy(ticket.customerName, token.c_str(), sizeof(ticket.customerName) - 1); break;
-						}
-					}
-					line.erase(0, pos + 1);
-					column++;
+
+				if (getline(ss, token, ',')) ticket.flightCode = stoi(token);
+				if (getline(ss, token, ',')) ticket.customerID = stoi(token);
+				if (getline(ss, token, ',')) {
+					strncpy(ticket.customerName, token.c_str(), sizeof(ticket.customerName) - 1);
+					ticket.customerName[sizeof(ticket.customerName) - 1] = '\0';
 				}
-				if (!line.empty()) {
-					ticket.boughtTime = stoll(line);
-				}
+				if (getline(ss, token, ',')) ticket.boughtTime = stoll(token);
+
 				ticketList.push_back(ticket);
-			} catch (const std::invalid_argument& e) {
-				cout << "Data format error in tickets.csv" << endl;
-				ticketCsv.close();
-				return;
+			}
+			catch (const exception& e) {
+				cout << "Ticket data format error: " << e.what() << endl;
+				continue;
 			}
 		}
 		ticketCsv.close();
