@@ -41,14 +41,26 @@ vector<int> SortByTimeLength(vector<time_t> originVector) {
 		time_t smallestTime = 0;
 		int elementIndex = 0;
 		int smallestIndex = 0;
+
+		//初始化变量为未选择过的元素对应初始值
+		int j = 0;
+		for (time_t initTime : originVector) {
+			if (initTime != -1) {
+				smallestTime = initTime;
+				smallestIndex = j;
+				break;
+			}
+			j++;
+		}
 		for (auto nowTime : originVector) {
-			if (smallestTime < nowTime) {
+			if (smallestTime > nowTime) {
 				smallestIndex = elementIndex;
+				smallestTime = nowTime;
 			}
 			elementIndex++;
 		}
-		finalIndexVector.push_back(smallestIndex);
 		originVector[smallestIndex] = -1;
+		finalIndexVector.push_back(smallestIndex);
 	}
 	return finalIndexVector;
 }
@@ -68,14 +80,26 @@ vector<int> SortByLeaveTime(vector<time_t> originVector){
 		time_t cloestTime = 0;
 		int elementIndex = 0;
 		int smallestIndex = 0;
+
+		//初始化变量为未选择过的元素对应初始值
+		int j = 0;
+		for (time_t initTime : originVector) {
+			if (initTime != -1) {
+				cloestTime = initTime;
+				smallestIndex = j;
+				break;
+			}
+			j++;
+		}
 		for (auto nowTime : originVector) {
-			if (cloestTime >= nowTime) {
+			if (cloestTime > nowTime) {
 				smallestIndex = elementIndex;
+				cloestTime = nowTime;
 			}
 			elementIndex++;
 		}
-		finalIndexVector.push_back(smallestIndex);
 		originVector[smallestIndex] = -1;
+		finalIndexVector.push_back(smallestIndex);
 	}
 	return finalIndexVector;
 }
@@ -94,14 +118,17 @@ vector<int> SortByByName(vector<string> originVector) {
 	for (int loopTime = 0; loopTime != elementAmount; loopTime++) {
 		string smallestStr;
 		int elementIndex = 0;
-		int smallestIndex = 0;
+		int smallestIndex;
 
-		//初始化最小值
+		//初始化变量为未选择过的元素对应初始值
+		int j = 0;
 		for (string initStr : originVector) {
 			if (initStr != "-1") {
 				smallestStr = initStr;
+				smallestIndex = j;
 				break;
 			}
+			j++;
 		}
 
 		for (auto nowStr : originVector) {
@@ -132,14 +159,17 @@ vector<int> SortByByCode(vector<int> originVector) {
 	for (int loopTime = 0; loopTime != elementAmount; loopTime++) {
 		int smallestCode;
 		int elementIndex = 0;
-		int smallestIndex = 0;
+		int smallestIndex;
 
-		//初始化最小值
+		//初始化变量为未选择过的元素对应初始值
+		int j = 0;
 		for (int initCode : originVector) {
 			if (initCode != -1) {
 				smallestCode = initCode;
+				smallestIndex = j;
 				break;
 			}
+			j++;
 		}
 
 		for (auto nowCode : originVector) {
@@ -151,9 +181,6 @@ vector<int> SortByByCode(vector<int> originVector) {
 		}
 		originVector[smallestIndex] = -1;
 		finalIndexVector.push_back(smallestIndex);
-	}
-	for (int index : finalIndexVector) {
-		cout << index;
 	}
 	return finalIndexVector;
 }
@@ -200,7 +227,7 @@ public:
 			cout << "1.List by code" << endl
 				<< "2.List by name" << endl
 				<< "3.List directly" << endl
-				<< "4.Back";
+				<< "4.Back" << endl;
 			cin >> action;
 			system("cls");
 			switch (action) {
@@ -353,7 +380,7 @@ void SiteScreen() {
 			<< "3.Modify site name" << endl
 			<< "4.Show site list" << endl
 			<< "5.Back" << endl;
-		cout << "Please choose an action:" << endl;
+		
 
 		cin >> action;
 		system("cls");
@@ -400,7 +427,7 @@ void RouteScreen() {
 			<< "3.Modify route" << endl
 			<< "4.Show route list" << endl
 			<< "5.Back" << endl;
-		cout << "Please choose an action:" << endl;
+		
 
 		cin >> action;
 		system("cls");
@@ -447,7 +474,7 @@ void FlightScreen() {
 			<< "3.Modify flight" << endl
 			<< "4.Show flight list" << endl
 			<< "5.Back" << endl;
-		cout << "Please choose an action:" << endl;
+		
 
 		cin >> action;
 		system("cls");
@@ -491,7 +518,7 @@ void TicketingScreen() {
 	while (ifExit != true) {
 		cout << "1.Add new ticket" << endl
 			<< "2.Back" << endl;
-		cout << "Please choose an action:" << endl;
+		
 
 		cin >> action;
 		system("cls");
@@ -520,7 +547,7 @@ void HomeScreen() {
 		  	 << "5.Save" << endl
 			 << "6.Read" << endl
 			 << "7.Exit" << endl;
-		cout << "Please choose an action:" << endl;
+		
 
 		cin >> action;
 		system("cls");
