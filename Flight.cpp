@@ -71,7 +71,7 @@ public:
 
 	//TODO
 	bool DeleteRoute() {
-
+		return false;
 	}
 
 	//TODO
@@ -100,7 +100,7 @@ public:
 
 	//TODO
 	bool DeleteFlight() {
-
+		return false;
 	}
 
 	//TODO
@@ -171,12 +171,12 @@ void SiteScreen() {
 		case 2:
 			if (siteSystem.DeleteSite() == true) {
 				cout << "Delete success!" << endl;
-				Sleep(1500);
+				_getch();
 				system("cls");
 			}
 			else {
 				cout << "Can't delete this site!" << endl;
-				Sleep(1500);
+				_getch();
 				system("cls");
 			}
 			break;
@@ -218,12 +218,12 @@ void RouteScreen() {
 		case 2:
 			if (routeSystem.DeleteRoute() == true) {
 				cout << "Delete success!" << endl;
-				Sleep(1500);
+				_getch();
 				system("cls");
 			}
 			else {
 				cout << "Can't delete this route!" << endl;
-				Sleep(1500);
+				_getch();
 				system("cls");
 			}
 			break;
@@ -265,12 +265,12 @@ void FlightScreen() {
 		case 2:
 			if (flightSystem.DeleteFlight() == true) {
 				cout << "Delete success!" << endl;
-				Sleep(1500);
+				_getch();
 				system("cls");
 			}
 			else {
 				cout << "Can't delete this flight!" << endl;
-				Sleep(1500);
+				_getch();
 				system("cls");
 			}
 			break;
@@ -290,9 +290,29 @@ void FlightScreen() {
 	}
 }
 
-//TODO
 void TicketingScreen() {
+	bool ifExit = false;
+	int action = 0;
+	TicketingSystem ticketingSystem;
+	while (ifExit != true) {
+		cout << "1.Add new ticket" << endl
+			<< "2.Back" << endl;
+		cout << "Please choose an action:" << endl;
 
+		cin >> action;
+		system("cls");
+		switch (action) {
+		case 1:
+			ticketingSystem.AddTicket();
+			system("cls");
+			break;
+		case 2:
+			ifExit = true;
+			break;
+		default:
+			break;
+		}
+	}
 }
 
 void HomeScreen() {
