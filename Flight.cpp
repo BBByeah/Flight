@@ -3,6 +3,8 @@
 #include <vector>
 #include <iomanip>
 #include <stdlib.h>
+#include <conio.h>
+#include <Windows.h>
 
 using namespace std;
 
@@ -50,7 +52,7 @@ public:
 
 	//TODO
 	bool DeleteSite() {
-
+		return false;
 	}
 
 	//TODO
@@ -146,19 +148,146 @@ public:
 	}
 };
 
-//TODO
+
 void SiteScreen() {
+	bool ifExit = false;
+	int action = 0;
+	SiteSystem siteSystem;
+	while (ifExit != true) {
+		cout << "1.Add new site" << endl
+			<< "2.Delete site" << endl
+			<< "3.Modify site name" << endl
+			<< "4.Show site list" << endl
+			<< "5.Back" << endl;
+		cout << "Please choose an action:" << endl;
 
+		cin >> action;
+		system("cls");
+		switch (action) {
+		case 1:
+			siteSystem.AddSite();
+			system("cls");
+			break;
+		case 2:
+			if (siteSystem.DeleteSite() == true) {
+				cout << "Delete success!" << endl;
+				Sleep(1500);
+				system("cls");
+			}
+			else {
+				cout << "Can't delete this site!" << endl;
+				Sleep(1500);
+				system("cls");
+			}
+			break;
+		case 3:
+			siteSystem.ModifySiteName();
+			system("cls");
+			break;
+		case 4:
+			siteSystem.ShowSiteList();
+			break;
+		case 5:
+			ifExit = true;
+			break;
+		default:
+			break;
+		}
+	}
 }
 
-//TODO
 void RouteScreen() {
+	bool ifExit = false;
+	int action = 0;
+	RouteSystem routeSystem;
+	while (ifExit != true) {
+		cout << "1.Add new route" << endl
+			<< "2.Delete route" << endl
+			<< "3.Modify route" << endl
+			<< "4.Show route list" << endl
+			<< "5.Back" << endl;
+		cout << "Please choose an action:" << endl;
 
+		cin >> action;
+		system("cls");
+		switch (action) {
+		case 1:
+			routeSystem.AddRoute();
+			system("cls");
+			break;
+		case 2:
+			if (routeSystem.DeleteRoute() == true) {
+				cout << "Delete success!" << endl;
+				Sleep(1500);
+				system("cls");
+			}
+			else {
+				cout << "Can't delete this route!" << endl;
+				Sleep(1500);
+				system("cls");
+			}
+			break;
+		case 3:
+			routeSystem.ModifyRoute();
+			system("cls");
+			break;
+		case 4:
+			routeSystem.ShowRouteList();
+			break;
+		case 5:
+			ifExit = true;
+			break;
+		default:
+			break;
+		}
+	}
 }
 
-//TODO
 void FlightScreen() {
+	bool ifExit = false;
+	int action = 0;
+	FlightSystem flightSystem;
+	while (ifExit != true) {
+		cout << "1.Add new flight" << endl
+			<< "2.Delete flight" << endl
+			<< "3.Modify flight" << endl
+			<< "4.Show flight list" << endl
+			<< "5.Back" << endl;
+		cout << "Please choose an action:" << endl;
 
+		cin >> action;
+		system("cls");
+		switch (action) {
+		case 1:
+			flightSystem.AddFlight();
+			system("cls");
+			break;
+		case 2:
+			if (flightSystem.DeleteFlight() == true) {
+				cout << "Delete success!" << endl;
+				Sleep(1500);
+				system("cls");
+			}
+			else {
+				cout << "Can't delete this flight!" << endl;
+				Sleep(1500);
+				system("cls");
+			}
+			break;
+		case 3:
+			flightSystem.ModifyFlight();
+			system("cls");
+			break;
+		case 4:
+			flightSystem.ShowFlightList();
+			break;
+		case 5:
+			ifExit = true;
+			break;
+		default:
+			break;
+		}
+	}
 }
 
 //TODO
