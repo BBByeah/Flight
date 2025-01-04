@@ -1,4 +1,10 @@
-﻿#include <iostream>
+﻿#define _CRT_SECURE_NO_WARNINGS
+#include <Windows.h>
+#include <conio.h>
+
+#include <stdexcept>
+#include <limits>
+#include <iostream>
 #include "dataType.h"
 #include <vector>
 #include <iomanip>
@@ -6,6 +12,7 @@
 #include <conio.h>
 #include <Windows.h>
 #include <string>
+#include <sstream>
 
 using namespace std;
 
