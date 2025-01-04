@@ -1,3 +1,7 @@
 SiteCode,Longitude,Latitude,SiteName,RelatedRouteCode
 3,1,1,A,1,2
 1,2,2,C,3,4
+2,3,3,B
+3,4,4,A,1,2
+1,5,5,C,3,4
+2,6,6,B

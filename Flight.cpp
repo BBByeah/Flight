@@ -586,32 +586,43 @@ void SiteScreen() {
 		system("cls");
 		switch (action) {
 		case 1:
+			Sleep(100);
 			siteSystem.AddSite();
 			system("cls");
 			break;
 		case 2:
+			Sleep(100);
 			if (siteSystem.DeleteSite() == true) {
 				cout << "Delete success!" << endl;
+				Sleep(500);
 				_getch();
 				system("cls");
 			}
 			else {
 				cout << "Can't delete this site!" << endl;
+				Sleep(500);
 				_getch();
 				system("cls");
 			}
 			break;
 		case 3:
+			Sleep(100);
 			siteSystem.ModifySiteName();
 			system("cls");
 			break;
 		case 4:
+			Sleep(100);
 			siteSystem.ShowSiteList();
 			break;
 		case 5:
+			Sleep(100);
 			ifExit = true;
 			break;
 		default:
+			Sleep(100);
+			cout << "Invalid input!" << endl;
+			Sleep(1000);
+			system("cls");
 			break;
 		}
 	}
@@ -741,6 +752,7 @@ void HomeScreen() {
 	int action = 0;
 	SavingSystem savingSystem;
 	while (ifExit != true) {
+		Sleep(100);
 		cout << "1.Site System" << endl
 			 << "2.Route System" << endl
 			 << "3.Flight System" << endl
@@ -751,36 +763,50 @@ void HomeScreen() {
 		cout << "Please choose an action:" << endl;
 
 		cin >> action;
+		Sleep(100); // 添加延迟让输出更稳定
 		system("cls");
 		switch (action) {
 		case 1:
+			Sleep(100);
 			SiteScreen();
 			break;
 		case 2:
+			Sleep(100);
 			RouteScreen();
 			break;
 		case 3:
+			Sleep(100);
 			FlightScreen();
 			break;
 		case 4:
+			Sleep(100);
 			TicketingScreen();
 			break;
 		case 5:
+			Sleep(100);
 			savingSystem.SavingToFile();
 			cout << "Save success!" << endl;
+			Sleep(500); // 增加成功提示显示时间
 			_getch();
 			system("cls");
 			break;
 		case 6:
+			Sleep(100);
 			savingSystem.ReadingFromFile();
 			cout << "Read success!" << endl;
+			Sleep(500); // 增加成功提示显示时间
 			_getch();
 			system("cls");
 			break;
 		case 7:
+			Sleep(100);
 			ifExit = true;
 			break;
 		default:
+			Sleep(100);
+			cout << "Invalid input!" << endl;
+			Sleep(1000);
+			system("cls");
 			break;
 		}
 	}
@@ -790,7 +816,7 @@ void HomeScreen() {
 
 int main()
 {
-
+/*
 	Site testSiteA = { 3, 1, 1, "A",{1,2} };
 	Site testSiteB = { 1, 2, 2, "C",{3,4} };
 	Site testSiteC = { 2, 3, 3, "B" };
@@ -804,6 +830,6 @@ int main()
 	siteList.push_back(testSiteD);
 	siteList.push_back(testSiteE);
 	siteList.push_back(testSiteF);
-
+*/
 	HomeScreen();
 }
