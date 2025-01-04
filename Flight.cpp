@@ -15,18 +15,6 @@ vector<Flight> flightList;
 vector<Ticket> ticketList;
 vector<int> vectorIndex;
 
-
-
-
-//Route testRouteA = { 1, {1,2}, 22 };
-//Route testRouteB = { };
-//
-//Flight testFlightA = { };
-//Flight testFlightB = { };
-//
-//Ticket testTicketA = { };
-//Ticket testTicketB = { };
-
 enum SortType {
 	ByTimeLength,
 	ByLeaveTime,
@@ -60,6 +48,7 @@ vector<int> SortByTimeLength(vector<time_t> originVector) {
 			elementIndex++;
 		}
 		finalIndexVector.push_back(smallestIndex);
+		originVector[smallestIndex] = -1;
 	}
 	return finalIndexVector;
 }
@@ -80,17 +69,17 @@ vector<int> SortByLeaveTime(vector<time_t> originVector){
 		int elementIndex = 0;
 		int smallestIndex = 0;
 		for (auto nowTime : originVector) {
-			if (cloestTime > nowTime) {
+			if (cloestTime >= nowTime) {
 				smallestIndex = elementIndex;
 			}
 			elementIndex++;
 		}
 		finalIndexVector.push_back(smallestIndex);
+		originVector[smallestIndex] = -1;
 	}
 	return finalIndexVector;
 }
 
-/*
 vector<int> SortByByName(vector<string> originVector) {
 	vector<int> originIndexVector;
 	int i = 0;
@@ -103,38 +92,146 @@ vector<int> SortByByName(vector<string> originVector) {
 	vector<int> finalIndexVector;
 	int elementAmount = size(originIndexVector);
 	for (int loopTime = 0; loopTime != elementAmount; loopTime++) {
-		string smallestStr = originVector[0];
+		string smallestStr;
 		int elementIndex = 0;
 		int smallestIndex = 0;
+
+		//初始化最小值
+		for (string initStr : originVector) {
+			if (initStr != "-1") {
+				smallestStr = initStr;
+				break;
+			}
+		}
+
 		for (auto nowStr : originVector) {
-			if (compare(nowStr,smallestStr) <= 0) {
+			if (smallestStr > nowStr && nowStr != "-1") {
 				smallestIndex = elementIndex;
+				smallestStr = nowStr;
 			}
 			elementIndex++;
 		}
+
 		finalIndexVector.push_back(smallestIndex);
+		originVector[smallestIndex] = "-1";
 	}
 	return finalIndexVector;
-}*/
+}
 
-//vector<int> SortByByCode(vector<int> originVector) {}
+vector<int> SortByByCode(vector<int> originVector) {
+	vector<int> originIndexVector;
+	int i = 0;
+
+	//初始化传入下标vector
+	for (auto trashVar : originVector) {
+		originIndexVector.push_back(i);
+		i++;
+	}
+	vector<int> finalIndexVector;
+	int elementAmount = size(originIndexVector);
+	for (int loopTime = 0; loopTime != elementAmount; loopTime++) {
+		int smallestCode;
+		int elementIndex = 0;
+		int smallestIndex = 0;
+
+		//初始化最小值
+		for (int initCode : originVector) {
+			if (initCode != -1) {
+				smallestCode = initCode;
+				break;
+			}
+		}
+
+		for (auto nowCode : originVector) {
+			if (smallestCode > nowCode && nowCode != -1) {
+				smallestIndex = elementIndex;
+				smallestCode = nowCode;
+			}
+			elementIndex++;
+		}
+		originVector[smallestIndex] = -1;
+		finalIndexVector.push_back(smallestIndex);
+	}
+	for (int index : finalIndexVector) {
+		cout << index;
+	}
+	return finalIndexVector;
+}
 
 //TODO
 class SiteSystem {
 public:
 
-	//TODO
-	void SortSiteList(SortType) {
+	void SortSiteListByName() {
+		vector<int> newIndexVector;
+		vector<Site> newSiteList;
+		vector<string> nameVector;
+		for (Site site : siteList) {
+			nameVector.push_back(site.siteName);
+		}
+		newIndexVector = SortByByName(nameVector);
+		for (int index : newIndexVector) {
+			newSiteList.push_back(siteList[index]);
+		}
+		siteList.clear();
+		siteList = newSiteList;
+	}
 
+	void SortSiteListByCode() {
+		vector<int> newIndexVector = {};
+		vector<Site> newSiteList = {};
+		vector<int> codeVector = {};
+		for (Site site : siteList) {
+			codeVector.push_back(site.siteCode);
+		}
+		newIndexVector = SortByByCode(codeVector);
+		for (int index : newIndexVector) {
+			newSiteList.push_back(siteList[index]);
+		}
+		siteList.clear();
+		siteList = newSiteList;
 	}
 
 	void ShowSiteList() {
-		cout << "Site Code   " << "Site Name           " << "longitude " << "latitude" << endl;
-		for (Site site : siteList) {
-			cout << left << setw(12) << site.siteCode;
-			cout << left << setw(20) << site.siteName;
-			cout << left << setw(10) << site.longitude;
-			cout << left << setw(10) << site.latitude << endl;
+		bool ifEnd = false;
+		bool ifShow = true;
+		int action = 0;
+		while (ifEnd != true) {
+			cout << "1.List by code" << endl
+				<< "2.List by name" << endl
+				<< "3.List directly" << endl
+				<< "4.Back";
+			cin >> action;
+			system("cls");
+			switch (action) {
+			case 1:
+				SortSiteListByCode();
+				ifEnd = true;
+				break;
+			case 2:
+				SortSiteListByName();
+				ifEnd = true;
+				break;
+			case 3:
+				ifEnd = true;
+				break;
+			case 4:
+				ifShow = false;
+				ifEnd = true;
+				break;
+			}
+		}
+
+		if (ifShow == true) {
+			cout << "Site Code   " << "Site Name           " << "longitude " << "latitude" << endl;
+			for (Site site : siteList) {
+				cout << left << setw(12) << site.siteCode;
+				cout << left << setw(20) << site.siteName;
+				cout << left << setw(10) << site.longitude;
+				cout << left << setw(10) << site.latitude << endl;
+			}
+			_getch();
+			system("cls");
 		}
 	}
 
@@ -459,10 +556,18 @@ void HomeScreen() {
 
 int main()
 {
-	Site testSiteA = { 1, 11, 11, "TSA",{1,2} };
-	Site testSiteB = { 2, 22, 22, "TSB",{3,4} };
+	Site testSiteA = { 3, 1, 1, "A",{1,2} };
+	Site testSiteB = { 1, 2, 2, "C",{3,4} };
+	Site testSiteC = { 2, 3, 3, "B" };
+	Site testSiteD = { 3, 4, 4, "A",{1,2} };
+	Site testSiteE = { 1, 5, 5, "C",{3,4} };
+	Site testSiteF = { 2, 6, 6, "B" };
 	
 	siteList.push_back(testSiteA);
 	siteList.push_back(testSiteB);
+	siteList.push_back(testSiteC);
+	siteList.push_back(testSiteD);
+	siteList.push_back(testSiteE);
+	siteList.push_back(testSiteF);
 	HomeScreen();
 }
