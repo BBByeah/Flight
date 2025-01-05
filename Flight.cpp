@@ -10,6 +10,8 @@
 #include <stdlib.h>
 #include <fstream>
 #include <string>
+#include <sstream>
+#include <algorithm>
 
 using namespace std;
 
@@ -281,14 +283,66 @@ public:
 		siteList.push_back(newSite);
 	}
 
-	//TODO
 	bool DeleteSite() {
-		return false;
+		int siteCode;
+		cout << "Enter site code to delete:";
+		cin >> siteCode;
+
+		// Check if site exists
+		auto it = find_if(siteList.begin(), siteList.end(),
+			[siteCode](const Site& site) { return site.siteCode == siteCode; });
+
+		if (it == siteList.end()) {
+			cout << "Site does not exist!" << endl;
+			return false;
+		}
+
+		// Check if site has related routes
+		if (!it->relatedRouteCode.empty()) {
+			cout << "Site has related routes, cannot delete!" << endl;
+			return false;
+		}
+
+		// Display site information
+		cout << "\nSite Information:" << endl;
+		cout << "Site Code: " << it->siteCode << endl;
+		cout << "Site Name: " << it->siteName << endl;
+		cout << "Longitude: " << it->longitude << endl;
+		cout << "Latitude: " << it->latitude << endl;
+
+		// Confirm deletion
+		char confirm;
+		cout << "\nConfirm deletion? (Y/N): ";
+		cin >> confirm;
+		if (confirm != 'Y' && confirm != 'y') {
+			cout << "Deletion cancelled!" << endl;
+			return false;
+		}
+
+		// Delete site
+		siteList.erase(it);
+		return true;
 	}
 
-	//TODO
 	void ModifySiteName() {
+		int siteCode;
+		string newName;
+		cout << "Enter site code to modify:";
+		cin >> siteCode;
 
+		// Find site
+		auto it = find_if(siteList.begin(), siteList.end(),
+			[siteCode](const Site& site) { return site.siteCode == siteCode; });
+
+		if (it == siteList.end()) {
+			cout << "Site does not exist!" << endl;
+			return;
+		}
+
+		cout << "Enter new site name:";
+		cin >> newName;
+		it->siteName = newName;
+		cout << "Modification successful!" << endl;
 	}
 };
 
