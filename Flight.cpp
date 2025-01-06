@@ -13,6 +13,10 @@
 #include <Windows.h>
 #include <string>
 #include <sstream>
+#include <math.h>
+
+#define EARTH_RADIUS 6371.0
+#define PI 3.14159265358979323846
 
 using namespace std;
 
@@ -192,7 +196,6 @@ vector<int> SortByByCode(vector<int> originVector) {
 	return finalIndexVector;
 }
 
-//TODO
 class SiteSystem {
 public:
 
@@ -292,12 +295,62 @@ public:
 //TODO
 class RouteSystem {
 public:
-	//TODO
-	void AddRoute() {
+	double Degree2rad(double degree) {
+		return (degree * PI / 180);
+	}
 
+	//计算地球上两点距离
+	double Haversine_distance(double lat1, double lon1, double lat2, double lon2) {
+		double dLat = Degree2rad(lat2 - lat1);
+		double dLon = Degree2rad(lon2 - lon1);
+		double a = sin(dLat / 2) * sin(dLat / 2) +
+			cos(Degree2rad(lat1)) * cos(Degree2rad(lat2)) *
+			sin(dLon / 2) * sin(dLon / 2);
+		double c = 2 * atan2(sqrt(a), sqrt(1 - a));
+		return EARTH_RADIUS * c;
 	}
 
 	//TODO
+	void AddRoute() {
+		Route newRoute;
+		cout << "Route code:"; cin >> newRoute.routeCode;
+		cout << "Departure site code:"; cin >> newRoute.relatedSites[0];
+		cout << "Landing site code::"; cin >> newRoute.relatedSites[1];
+		double lon0, lon1, lat0, lat1;
+		for (Site site : siteList) {
+			if (newRoute.relatedSites[0] == site.siteCode) {
+				lon0 = site.longitude;
+				lat0 = site.latitude;
+				site.relatedRouteCode.push_back(newRoute.routeCode);
+			}
+			if (newRoute.relatedSites[1] == site.siteCode) {
+				lon1 = site.longitude;
+				lat1 = site.latitude;
+				site.relatedRouteCode.push_back(newRoute.routeCode);
+			}
+		}
+		double newDistance = Haversine_distance(lat0, lon0, lat1, lon1);
+		newRoute.distance = newDistance;
+
+		//计算时间和费用
+		const double CRUISE_SPEED = 900.0;
+		const double FUEL_CONSUMPTION_RATE = 1.0;
+		const double FUEL_PRICE_PER_TON = 1500.0;
+		double newDuration;
+		double fuelConsumption;
+		double fuelCost;
+		newDuration = newRoute.distance / CRUISE_SPEED;
+		fuelConsumption = FUEL_CONSUMPTION_RATE * newDuration;
+		fuelCost = fuelConsumption * FUEL_PRICE_PER_TON;
+
+		newRoute.price[2] = fuelCost * 1.5;
+		newRoute.price[1] = newRoute.price[2] * 1.2;
+		newRoute.price[0] = newRoute.price[2] * 1.5;
+		newRoute.duration = newDuration;
+
+		routeList.push_back(newRoute);
+	}
+
 	bool DeleteRoute() {
 		return false;
 	}
