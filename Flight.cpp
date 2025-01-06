@@ -364,14 +364,69 @@ public:
 
 	}
 
-	//TODO
-	void SortRouteList(SortType) {
+	void SortRouteList(SortType sortType) {
+		vector<time_t> timeVector;
+		vector<string> nameVector;
+		vector<int> codeVector;
 
+		// 根据不同排序类型准备数据
+		for (auto route : routeList) {
+			switch (sortType) {
+			case ByTimeLength:
+				timeVector.push_back(route.timeLength);
+				break;
+			case ByName:
+				nameVector.push_back(route.routeName); 
+				break;
+			case ByCode:
+				codeVector.push_back(route.routeCode);
+				break;
+			default:
+				cout << "Invalid sort type!" << endl;
+				return;
+			}
+		}
+
+		// 获取排序后的索引
+		vector<int> sortedIndex;
+		switch (sortType) {
+		case ByTimeLength:
+			sortedIndex = SortByTimeLength(timeVector);
+			break;
+		case ByName:
+			// 按名称字母顺序排序
+			sort(nameVector.begin(), nameVector.end());
+			break;
+		case ByCode:
+			// 按编号大小排序
+			sort(codeVector.begin(), codeVector.end());
+			break;
+		}
+
+		// 显示排序后的路线列表
+		ShowRouteList();
 	}
 
-	//TODO
 	void ShowRouteList() {
+		if (routeList.empty()) {
+			cout << "No routes available!" << endl;
+			return;
+		}
 
+		cout << "Route List:" << endl;
+		cout << setw(10) << "Code" 
+			 << setw(20) << "Name"
+			 << setw(15) << "Start Site"
+			 << setw(15) << "End Site"
+			 << setw(15) << "Time(min)" << endl;
+		
+		for (const auto& route : routeList) {
+			cout << setw(10) << route.routeCode
+				 << setw(20) << route.routeName
+				 << setw(15) << route.startSite
+				 << setw(15) << route.endSite
+				 << setw(15) << route.timeLength << endl;
+		}
 	}
 };
 

@@ -1,1 +1,9 @@
-FlightCode,CustomerID,CustomerName,PurchaseTime
+TicketCode,FlightCode,CustomerID,CustomerName,SeatType,BoughtTime
+10001,1001,1,John Smith,0,2024/01/15 14:30:00
+10002,1001,2,Mary Johnson,1,2024/01/17 09:15:00
+10003,1002,3,David Wilson,2,2024/01/18 11:20:00
+10004,1003,4,Sarah Brown,0,2024/01/19 16:45:00
+10005,1003,5,Michael Davis,1,2024/01/19 10:30:00
+10006,1004,6,Emma Taylor,2,2024/01/18 13:25:00
+10007,1005,7,James Anderson,0,2024/01/17 15:40:00
+10008,1006,8,Linda Martinez,1,2024/01/16 12:10:00
