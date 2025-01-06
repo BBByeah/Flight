@@ -1,3 +1,11 @@
-SiteCode,Longitude,Latitude,SiteName,RelatedRouteCode
-1,32,13,A
-2,45,24,B
+SiteCode,Longitude,Latitude,SiteName,RelatedRouteCodes,
+3,1,1,A,1,2
+1,2,2,C,3,4
+2,3,3,B,,
+3,4,4,A,1,2
+1,5,5,C,3,4
+2,6,6,B,,
+1,116.4074,39.9042,Beijing,1,2
+2,121.4737,31.2304,Shanghai,1,3
+3,113.2644,23.1291,Guangzhou,4,
+4,104.0668,30.5728,Chengdu,1,
