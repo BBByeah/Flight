@@ -14,7 +14,6 @@
 #include <algorithm>
 #include <math.h>
 
-#define EARTH_RADIUS 6371.0
 #define PI 3.14159265358979323846
 
 using namespace std;
@@ -228,6 +227,7 @@ public:
 		siteList.clear();
 		siteList = newSiteList;
 	}
+
 	void ShowSiteList() {
 		bool ifEnd = false;
 		bool ifShow = true;
@@ -238,25 +238,25 @@ public:
 				<< "3.List directly" << endl
 				<< "4.Back" << endl;
 			cin >> action;
-			Sleep(100);
+			Sleep(500);
 			system("cls");
 			switch (action) {
 			case 1:
-				Sleep(100);
+				Sleep(500);
 				SortSiteListByCode();
 				ifEnd = true;
 				break;
 			case 2:
-				Sleep(100);
+				Sleep(500);
 				SortSiteListByName();
 				ifEnd = true;
 				break;
 			case 3:
-				Sleep(100);
+				Sleep(500);
 				ifEnd = true;
 				break;
 			case 4:
-				Sleep(100);
+				Sleep(500);
 				ifShow = false;
 				ifEnd = true;
 				break;
@@ -264,7 +264,6 @@ public:
 		}
 
 		if (ifShow == true) {
-			Sleep(100);
 			cout << "Site Code   " << "Site Name           " << "longitude " << "latitude" << endl;
 			for (Site site : siteList) {
 				cout << left << setw(12) << site.siteCode;
@@ -272,6 +271,7 @@ public:
 				cout << left << setw(10) << site.longitude;
 				cout << left << setw(10) << site.latitude << endl;
 			}
+			Sleep(500);
 			_getch();
 			system("cls");
 		}
@@ -284,6 +284,7 @@ public:
 		cout << "Latitude:"; cin >> newSite.latitude;
 		cout << "Site Name:"; cin >> newSite.siteName;
 		siteList.push_back(newSite);
+		cout << "Add successfully!";
 	}
 
 	bool DeleteSite() {
@@ -363,45 +364,67 @@ public:
 			cos(Degree2rad(lat1)) * cos(Degree2rad(lat2)) *
 			sin(dLon / 2) * sin(dLon / 2);
 		double c = 2 * atan2(sqrt(a), sqrt(1 - a));
-		return EARTH_RADIUS * c;
+		return 6371.0 * c;
 	}
 
 	void AddRoute() {
 		Route newRoute;
+		int routeCode;
+		int siteCodeA;
+		int siteCodeB;
 		cout << "Route code:"; cin >> newRoute.routeCode;
+		routeCode = newRoute.routeCode;
 		cout << "Departure site code:"; cin >> newRoute.relatedSites[0];
-		cout << "Landing site code::"; cin >> newRoute.relatedSites[1];
+		siteCodeA = newRoute.relatedSites[0];
+		// Find site
+		auto it1 = find_if(siteList.begin(), siteList.end(),
+			[siteCodeA](const Site& site) { return site.siteCode == siteCodeA; });
+
+		if (it1 == siteList.end()) {
+			cout << "Site does not exist!" << endl;
+			return;
+		}
+
+		cout << "Landing site code:"; cin >> newRoute.relatedSites[1];
+		siteCodeB = newRoute.relatedSites[1];
+		auto it2 = find_if(siteList.begin(), siteList.end(),
+			[siteCodeB](const Site& site) { return site.siteCode == siteCodeB; });
+
+		if (it2 == siteList.end()) {
+			cout << "Site does not exist!" << endl;
+			return;
+		}
+
 		double lon0, lon1, lat0, lat1;
 		for (Site site : siteList) {
 			if (newRoute.relatedSites[0] == site.siteCode) {
 				lon0 = site.longitude;
 				lat0 = site.latitude;
-				site.relatedRouteCode.push_back(newRoute.routeCode);
 			}
 			if (newRoute.relatedSites[1] == site.siteCode) {
 				lon1 = site.longitude;
 				lat1 = site.latitude;
-				site.relatedRouteCode.push_back(newRoute.routeCode);
 			}
 		}
+
+		auto itA = find_if(siteList.begin(), siteList.end(),
+			[siteCodeA](const Site& site) { return site.siteCode == siteCodeA; });
+		itA->relatedRouteCode.push_back(routeCode);
+		auto itB = find_if(siteList.begin(), siteList.end(),
+			[siteCodeB](const Site& site) { return site.siteCode == siteCodeB; });
+		itB->relatedRouteCode.push_back(routeCode);
 		double newDistance = Haversine_distance(lat0, lon0, lat1, lon1);
 		newRoute.distance = newDistance;
 
 		//计算时间和费用
-		const double CRUISE_SPEED = 900.0;
-		const double FUEL_CONSUMPTION_RATE = 1.0;
-		const double FUEL_PRICE_PER_TON = 1500.0;
+		double CRUISE_SPEED = 900.0;
 		double newDuration;
-		double fuelConsumption;
-		double fuelCost;
 		newDuration = newRoute.distance / CRUISE_SPEED;
-		fuelConsumption = FUEL_CONSUMPTION_RATE * newDuration;
-		fuelCost = fuelConsumption * FUEL_PRICE_PER_TON;
 
 		cout << "Economy class price:"; cin >> newRoute.price[2];
 		newRoute.price[1] = newRoute.price[2] * 1.2;
 		newRoute.price[0] = newRoute.price[2] * 1.5;
-		newRoute.duration = newDuration;
+		newRoute.duration = newDuration * 3600 + 2700;
 
 		routeList.push_back(newRoute);
 	}
@@ -426,8 +449,6 @@ public:
 			return false;
 		}
 
-		Route route;
-
 		// Display route information
 		cout << "\nRoute Information:" << endl;
 		cout << "Route Code: " << it->routeCode << endl;
@@ -444,10 +465,28 @@ public:
 			return false;
 		}
 
-		// Delete route
+
+		// Delete route code in sites
+		int relatedSiteCodeA;
+		int relatedSiteCodeB;
+		relatedSiteCodeA = it->relatedSites[0];
+		relatedSiteCodeB = it->relatedSites[1];
+		for (Site& site : siteList) {
+			if (site.siteCode == relatedSiteCodeA) {
+				auto itA = find(site.relatedRouteCode.begin(), site.relatedRouteCode.end(), routeCode);
+				site.relatedRouteCode.erase(itA);
+			}
+		}
+		for (Site& site : siteList) {
+			if (site.siteCode == relatedSiteCodeB) {
+				auto itB = find(site.relatedRouteCode.begin(), site.relatedRouteCode.end(), routeCode);
+				site.relatedRouteCode.erase(itB);
+			}
+		}
+
+		//delete route
 		routeList.erase(it);
 		return true;
-		return false;
 	}
 
 	void ModifyRoute() {
@@ -466,15 +505,19 @@ public:
 			return;
 		}
 
+		// Check if route has related flights
+		if (!it->relatedFlightCode.empty()) {
+			cout << "Route has related flights, cannot modify!" << endl;
+			return;
+		}
+
 		cout << "Enter new departure site code:";
 		cin >> newDepartureSiteCode;
 		cout << "Enter new landing site code:";
 		cin >> newLandingSiteCode;
 
-		// Delete route
+		// Delete route and modify the route by create a new one
 		routeList.erase(it);
-
-		//modify the route by create a new one
 		Route newRoute;
 		newRoute.routeCode = routeCode;
 		newRoute.relatedSites[0] = newDepartureSiteCode;
@@ -496,20 +539,14 @@ public:
 		newRoute.distance = newDistance;
 
 		//计算时间和费用
-		const double CRUISE_SPEED = 900.0;
-		const double FUEL_CONSUMPTION_RATE = 1.0;
-		const double FUEL_PRICE_PER_TON = 1500.0;
+		double CRUISE_SPEED = 900.0;
 		double newDuration;
-		double fuelConsumption;
-		double fuelCost;
 		newDuration = newRoute.distance / CRUISE_SPEED;
-		fuelConsumption = FUEL_CONSUMPTION_RATE * newDuration;
-		fuelCost = fuelConsumption * FUEL_PRICE_PER_TON;
 
-		newRoute.price[2] = fuelCost * 1.5;
+		cout << "Economy class price:"; cin >> newRoute.price[2];
 		newRoute.price[1] = newRoute.price[2] * 1.2;
 		newRoute.price[0] = newRoute.price[2] * 1.5;
-		newRoute.duration = newDuration;
+		newRoute.duration = newDuration * 3600 + 2700;
 
 		routeList.push_back(newRoute);
 		cout << "Modification successful!" << endl;
@@ -555,16 +592,18 @@ public:
 			}
 		}
 
-		Route route;
-
 		if (ifShow == true) {
-			cout << "Route Code   " << "Related Sites           " << "distance " << "price         " << "duration" << endl;
+			cout << "Route Code    " << "|Related Sites            " 
+				<< "|distance   " << "|price               " << "|duration" << endl;
 			for (Route route : routeList) {
-				cout << left << setw(12) << route.routeCode;
-				cout << left << setw(25) << reinterpret_cast<string&>(route.relatedSites[0]) + "-" + reinterpret_cast<string&>(route.relatedSites[1]);
-				cout << left << setw(10) << route.distance;
-				cout << left << setw(15) << reinterpret_cast<string&>(route.price[0]) + "|" + reinterpret_cast<string&>(route.price[1]) + "|" + reinterpret_cast<string&>(route.price[2]) << endl;
-				cout << left << setw(9) << route.duration;
+				cout << left << setw(14) << route.routeCode;
+				cout << "|"  << left     << setw(12)  << route.relatedSites[0] << "-"
+							 << setw(12) << route.relatedSites[1];
+				cout << "|"  << left	 << setw(9)  << route.distance << "km";
+				cout << "|" << left << setw(6)  << route.price[0] << "|"
+					 << left << setw(6)  << route.price[1] << "|"
+					 << left << setw(6)  << route.price[2] ;
+				cout << "|" << left << setw(9) << route.duration / 3600 << "h" << endl;
 			}
 			_getch();
 			system("cls");
@@ -861,7 +900,7 @@ void SiteScreen() {
 		system("cls");
 		switch (action) {
 		case 1:
-			Sleep(100);
+			Sleep(500);
 			siteSystem.AddSite();
 			system("cls");
 			break;
@@ -936,6 +975,8 @@ void RouteScreen() {
 			break;
 		case 3:
 			routeSystem.ModifyRoute();
+			Sleep(500);
+			_getch();
 			system("cls");
 			break;
 		case 4:
@@ -1026,6 +1067,7 @@ void HomeScreen() {
 	bool ifExit = false;
 	int action = 0;
 	SavingSystem savingSystem;
+	savingSystem.ReadingFromFile();
 	while (ifExit != true) {
 		Sleep(100);
 		cout << "1.Site System" << endl
@@ -1091,20 +1133,5 @@ void HomeScreen() {
 
 int main()
 {
-/*
-	Site testSiteA = { 3, 1, 1, "A",{1,2} };
-	Site testSiteB = { 1, 2, 2, "C",{3,4} };
-	Site testSiteC = { 2, 3, 3, "B" };
-	Site testSiteD = { 3, 4, 4, "A",{1,2} };
-	Site testSiteE = { 1, 5, 5, "C",{3,4} };
-	Site testSiteF = { 2, 6, 6, "B" };
-
-	siteList.push_back(testSiteA);
-	siteList.push_back(testSiteB);
-	siteList.push_back(testSiteC);
-	siteList.push_back(testSiteD);
-	siteList.push_back(testSiteE);
-	siteList.push_back(testSiteF);
-*/
 	HomeScreen();
 }
