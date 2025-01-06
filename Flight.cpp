@@ -1,4 +1,9 @@
-﻿#include <iostream>
+﻿#define _CRT_SECURE_NO_WARNINGS
+
+#include <Windows.h>
+#include <conio.h>
+
+#include <iostream>
 #include "dataType.h"
 #include <vector>
 #include <iomanip>
@@ -7,7 +12,6 @@
 #include <string>
 #include <sstream>
 #include <algorithm>
-#include <sstream>
 #include <math.h>
 
 #define EARTH_RADIUS 6371.0
@@ -394,7 +398,7 @@ public:
 		fuelConsumption = FUEL_CONSUMPTION_RATE * newDuration;
 		fuelCost = fuelConsumption * FUEL_PRICE_PER_TON;
 
-		newRoute.price[2] = fuelCost * 1.5;
+		cout << "Economy class price:"; cin >> newRoute.price[2];
 		newRoute.price[1] = newRoute.price[2] * 1.2;
 		newRoute.price[0] = newRoute.price[2] * 1.5;
 		newRoute.duration = newDuration;
