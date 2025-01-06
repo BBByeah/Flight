@@ -18,6 +18,7 @@ struct Route {
 	double distance;
 	double price[3];//依次是头等舱，公务舱，经济舱的价格
 	time_t duration;
+	vector<int> relatedFlightCode;
 };
 
 struct Flight {

@@ -281,18 +281,69 @@ public:
 		siteList.push_back(newSite);
 	}
 
-	//TODO
 	bool DeleteSite() {
-		return false;
+		int siteCode;
+		cout << "Enter site code to delete:";
+		cin >> siteCode;
+
+		// Check if site exists
+		auto it = find_if(siteList.begin(), siteList.end(),
+			[siteCode](const Site& site) { return site.siteCode == siteCode; });
+
+		if (it == siteList.end()) {
+			cout << "Site does not exist!" << endl;
+			return false;
+		}
+
+		// Check if site has related routes
+		if (!it->relatedRouteCode.empty()) {
+			cout << "Site has related routes, cannot delete!" << endl;
+			return false;
+		}
+
+		// Display site information
+		cout << "\nSite Information:" << endl;
+		cout << "Site Code: " << it->siteCode << endl;
+		cout << "Site Name: " << it->siteName << endl;
+		cout << "Longitude: " << it->longitude << endl;
+		cout << "Latitude: " << it->latitude << endl;
+
+		// Confirm deletion
+		char confirm;
+		cout << "\nConfirm deletion? (Y/N): ";
+		cin >> confirm;
+		if (confirm != 'Y' && confirm != 'y') {
+			cout << "Deletion cancelled!" << endl;
+			return false;
+		}
+
+		// Delete site
+		siteList.erase(it);
+		return true;
 	}
 
-	//TODO
 	void ModifySiteName() {
+		int siteCode;
+		string newName;
+		cout << "Enter site code to modify:";
+		cin >> siteCode;
 
+		// Find site
+		auto it = find_if(siteList.begin(), siteList.end(),
+			[siteCode](const Site& site) { return site.siteCode == siteCode; });
+
+		if (it == siteList.end()) {
+			cout << "Site does not exist!" << endl;
+			return;
+		}
+
+		cout << "Enter new site name:";
+		cin >> newName;
+		it->siteName = newName;
+		cout << "Modification successful!" << endl;
 	}
 };
 
-//TODO
 class RouteSystem {
 public:
 	double Degree2rad(double degree) {
@@ -310,7 +361,6 @@ public:
 		return EARTH_RADIUS * c;
 	}
 
-	//TODO
 	void AddRoute() {
 		Route newRoute;
 		cout << "Route code:"; cin >> newRoute.routeCode;
@@ -352,22 +402,168 @@ public:
 	}
 
 	bool DeleteRoute() {
+		int routeCode;
+		cout << "Enter route code to delete:";
+		cin >> routeCode;
+
+		// Check if route exists
+		auto it = find_if(routeList.begin(), routeList.end(),
+			[routeCode](const Route& route) { return route.routeCode == routeCode; });
+
+		if (it == routeList.end()) {
+			cout << "Route does not exist!" << endl;
+			return false;
+		}
+
+		// Check if route has related flights
+		if (!it->relatedFlightCode.empty()) {
+			cout << "Route has related flights, cannot delete!" << endl;
+			return false;
+		}
+
+		Route route;
+
+		// Display route information
+		cout << "\nRoute Information:" << endl;
+		cout << "Route Code: " << it->routeCode << endl;
+		cout << "Related Sites: " << it->relatedSites[0] << "<->" << it->relatedSites[1] << endl;
+		cout << "Price: " << it->price[0] << "|" << it->price[1] << "|" << it->price[2] << endl;
+		cout << "duration: " << it->duration << " h" << endl;
+
+		// Confirm deletion
+		char confirm;
+		cout << "\nConfirm deletion? (Y/N): ";
+		cin >> confirm;
+		if (confirm != 'Y' && confirm != 'y') {
+			cout << "Deletion cancelled!" << endl;
+			return false;
+		}
+
+		// Delete route
+		routeList.erase(it);
+		return true;
 		return false;
 	}
 
-	//TODO
 	void ModifyRoute() {
+		int routeCode;
+		int newDepartureSiteCode;
+		int newLandingSiteCode;
+		cout << "Enter route code to modify:";
+		cin >> routeCode;
 
+		// Find route
+		auto it = find_if(routeList.begin(), routeList.end(),
+			[routeCode](const Route& route) { return route.routeCode == routeCode; });
+
+		if (it == routeList.end()) {
+			cout << "Route does not exist!" << endl;
+			return;
+		}
+
+		cout << "Enter new departure site code:";
+		cin >> newDepartureSiteCode;
+		cout << "Enter new landing site code:";
+		cin >> newLandingSiteCode;
+
+		// Delete route
+		routeList.erase(it);
+
+		//modify the route by create a new one
+		Route newRoute;
+		newRoute.routeCode = routeCode;
+		newRoute.relatedSites[0] = newDepartureSiteCode;
+		newRoute.relatedSites[1] = newLandingSiteCode;
+		double lon0, lon1, lat0, lat1;
+		for (Site site : siteList) {
+			if (newRoute.relatedSites[0] == site.siteCode) {
+				lon0 = site.longitude;
+				lat0 = site.latitude;
+				site.relatedRouteCode.push_back(newRoute.routeCode);
+			}
+			if (newRoute.relatedSites[1] == site.siteCode) {
+				lon1 = site.longitude;
+				lat1 = site.latitude;
+				site.relatedRouteCode.push_back(newRoute.routeCode);
+			}
+		}
+		double newDistance = Haversine_distance(lat0, lon0, lat1, lon1);
+		newRoute.distance = newDistance;
+
+		//计算时间和费用
+		const double CRUISE_SPEED = 900.0;
+		const double FUEL_CONSUMPTION_RATE = 1.0;
+		const double FUEL_PRICE_PER_TON = 1500.0;
+		double newDuration;
+		double fuelConsumption;
+		double fuelCost;
+		newDuration = newRoute.distance / CRUISE_SPEED;
+		fuelConsumption = FUEL_CONSUMPTION_RATE * newDuration;
+		fuelCost = fuelConsumption * FUEL_PRICE_PER_TON;
+
+		newRoute.price[2] = fuelCost * 1.5;
+		newRoute.price[1] = newRoute.price[2] * 1.2;
+		newRoute.price[0] = newRoute.price[2] * 1.5;
+		newRoute.duration = newDuration;
+
+		routeList.push_back(newRoute);
+		cout << "Modification successful!" << endl;
 	}
 
-	//TODO
-	void SortRouteList(SortType) {
-
+	void SortRouteListByCode() {
+		vector<int> newIndexVector = {};
+		vector<Route> newRouteList = {};
+		vector<int> codeVector = {};
+		for (Route route : routeList) {
+			codeVector.push_back(route.routeCode);
+		}
+		newIndexVector = SortByByCode(codeVector);
+		for (int index : newIndexVector) {
+			newRouteList.push_back(routeList[index]);
+		}
+		routeList.clear();
+		routeList = newRouteList;
 	}
 
-	//TODO
 	void ShowRouteList() {
+		bool ifEnd = false;
+		bool ifShow = true;
+		int action = 0;
+		while (ifEnd != true) {
+			cout << "1.List by code" << endl
+				<< "2.List directly" << endl
+				<< "3.Back" << endl;
+			cin >> action;
+			system("cls");
+			switch (action) {
+			case 1:
+				SortRouteListByCode();
+				ifEnd = true;
+				break;
+			case 2:
+				ifEnd = true;
+				break;
+			case 3:
+				ifShow = false;
+				ifEnd = true;
+				break;
+			}
+		}
 
+		Route route;
+
+		if (ifShow == true) {
+			cout << "Route Code   " << "Related Sites           " << "distance " << "price         " << "duration" << endl;
+			for (Route route : routeList) {
+				cout << left << setw(12) << route.routeCode;
+				cout << left << setw(25) << reinterpret_cast<string&>(route.relatedSites[0]) + "-" + reinterpret_cast<string&>(route.relatedSites[1]);
+				cout << left << setw(10) << route.distance;
+				cout << left << setw(15) << reinterpret_cast<string&>(route.price[0]) + "|" + reinterpret_cast<string&>(route.price[1]) + "|" + reinterpret_cast<string&>(route.price[2]) << endl;
+				cout << left << setw(9) << route.duration;
+			}
+			_getch();
+			system("cls");
+		}
 	}
 };
 
