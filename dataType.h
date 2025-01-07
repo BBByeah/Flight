@@ -22,14 +22,12 @@ struct Route {
 };
 
 struct Flight {
-	bool ifValidFlight = false;
+	bool isSold = false;
+	int flightCode;
 	int startSiteCode;
 	int endSiteCode;
 	//Í¾¾­º½Ïß
-	struct PassingByRoute {
-		int routeCode;
-		PassingByRoute* nextRoute;
-	}routeHead;
+	vector<int> passingByRouteCodes;
 	time_t departureTime;
 	time_t landingTime;
 	int remainingTickets[3];

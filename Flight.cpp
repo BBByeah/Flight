@@ -13,6 +13,7 @@
 #include <sstream>
 #include <algorithm>
 #include <math.h>
+#include <stdarg.h>
 
 #define PI 3.14159265358979323846
 
@@ -367,15 +368,10 @@ public:
 		return 6371.0 * c;
 	}
 
-	void AddRoute() {
+	void AddRoute(int routeCode, int siteCodeA, int siteCodeB) {
 		Route newRoute;
-		int routeCode;
-		int siteCodeA;
-		int siteCodeB;
-		cout << "Route code:"; cin >> newRoute.routeCode;
-		routeCode = newRoute.routeCode;
-		cout << "Departure site code:"; cin >> newRoute.relatedSites[0];
-		siteCodeA = newRoute.relatedSites[0];
+		newRoute.routeCode = routeCode;
+		newRoute.relatedSites[0] = siteCodeA;
 		// Find site
 		auto it1 = find_if(siteList.begin(), siteList.end(),
 			[siteCodeA](const Site& site) { return site.siteCode == siteCodeA; });
@@ -384,9 +380,8 @@ public:
 			cout << "Site does not exist!" << endl;
 			return;
 		}
-
-		cout << "Landing site code:"; cin >> newRoute.relatedSites[1];
-		siteCodeB = newRoute.relatedSites[1];
+		
+		newRoute.relatedSites[1] = siteCodeB;
 		auto it2 = find_if(siteList.begin(), siteList.end(),
 			[siteCodeB](const Site& site) { return site.siteCode == siteCodeB; });
 
@@ -424,16 +419,12 @@ public:
 		cout << "Economy class price:"; cin >> newRoute.price[2];
 		newRoute.price[1] = newRoute.price[2] * 1.2;
 		newRoute.price[0] = newRoute.price[2] * 1.5;
-		newRoute.duration = newDuration * 3600 + 2700;
+		newRoute.duration = newDuration * 3600;
 
 		routeList.push_back(newRoute);
 	}
 
-	bool DeleteRoute() {
-		int routeCode;
-		cout << "Enter route code to delete:";
-		cin >> routeCode;
-
+	bool DeleteRoute(int routeCode) {
 		// Check if route exists
 		auto it = find_if(routeList.begin(), routeList.end(),
 			[routeCode](const Route& route) { return route.routeCode == routeCode; });
@@ -489,67 +480,30 @@ public:
 		return true;
 	}
 
-	void ModifyRoute() {
-		int routeCode;
-		int newDepartureSiteCode;
-		int newLandingSiteCode;
-		cout << "Enter route code to modify:";
-		cin >> routeCode;
-
+	bool ModifyRoute(int routeCode, int newDepartureSiteCode, int newLandingSiteCode) {
+		RouteSystem routeSystem;
 		// Find route
 		auto it = find_if(routeList.begin(), routeList.end(),
 			[routeCode](const Route& route) { return route.routeCode == routeCode; });
 
 		if (it == routeList.end()) {
 			cout << "Route does not exist!" << endl;
-			return;
+			return false;
 		}
 
 		// Check if route has related flights
 		if (!it->relatedFlightCode.empty()) {
 			cout << "Route has related flights, cannot modify!" << endl;
-			return;
+			return false;
 		}
 
-		cout << "Enter new departure site code:";
-		cin >> newDepartureSiteCode;
-		cout << "Enter new landing site code:";
-		cin >> newLandingSiteCode;
 
 		// Delete route and modify the route by create a new one
-		routeList.erase(it);
-		Route newRoute;
-		newRoute.routeCode = routeCode;
-		newRoute.relatedSites[0] = newDepartureSiteCode;
-		newRoute.relatedSites[1] = newLandingSiteCode;
-		double lon0, lon1, lat0, lat1;
-		for (Site site : siteList) {
-			if (newRoute.relatedSites[0] == site.siteCode) {
-				lon0 = site.longitude;
-				lat0 = site.latitude;
-				site.relatedRouteCode.push_back(newRoute.routeCode);
-			}
-			if (newRoute.relatedSites[1] == site.siteCode) {
-				lon1 = site.longitude;
-				lat1 = site.latitude;
-				site.relatedRouteCode.push_back(newRoute.routeCode);
-			}
+		if (routeSystem.DeleteRoute(routeCode) != true) {
+			return false;
 		}
-		double newDistance = Haversine_distance(lat0, lon0, lat1, lon1);
-		newRoute.distance = newDistance;
-
-		//计算时间和费用
-		double CRUISE_SPEED = 900.0;
-		double newDuration;
-		newDuration = newRoute.distance / CRUISE_SPEED;
-
-		cout << "Economy class price:"; cin >> newRoute.price[2];
-		newRoute.price[1] = newRoute.price[2] * 1.2;
-		newRoute.price[0] = newRoute.price[2] * 1.5;
-		newRoute.duration = newDuration * 3600 + 2700;
-
-		routeList.push_back(newRoute);
-		cout << "Modification successful!" << endl;
+		routeSystem.AddRoute(routeCode, newDepartureSiteCode, newLandingSiteCode);
+		return true;
 	}
 
 	void SortRouteListByCode() {
@@ -611,12 +565,61 @@ public:
 	}
 };
 
-//TODO
 class FlightSystem {
 public:
-	//TODO
-	void AddFlight() {
+	//手动输入时间
+	time_t inputTime() {
+		int year, month, day, hour, minute, second;
+		std::cout << "Enter departure year: ";
+		std::cin >> year;
+		std::cout << "Enter month (1-12): ";
+		std::cin >> month;
+		std::cout << "Enter day (1-31): ";
+		std::cin >> day;
+		std::cout << "Enter hour (0-23): ";
+		std::cin >> hour;
+		std::cout << "Enter minute (0-59): ";
+		std::cin >> minute;
+		std::cout << "Enter second (0-59): ";
+		std::cin >> second;
 
+		tm timeinfo = {};
+		timeinfo.tm_year = year - 1900; // Year since 1900
+		timeinfo.tm_mon = month - 1;    // Months since January (0-11)
+		timeinfo.tm_mday = day;         // Day of the month (1-31)
+		timeinfo.tm_hour = hour;        // Hours since midnight (0-23)
+		timeinfo.tm_min = minute;       // Minutes after the hour (0-59)
+		timeinfo.tm_sec = second;       // Seconds after the minute (0-59)
+
+		time_t rawtime = mktime(&timeinfo);
+		return rawtime;
+	}
+	
+	void AddFlight(int flightCode, int siteCodeA, int siteCodeB, int remainingTickets[3], int routeNumber, ...) {
+		Flight newFlight;
+		newFlight.flightCode = flightCode;
+		newFlight.startSiteCode = siteCodeA;
+		newFlight.endSiteCode = siteCodeB;
+		va_list PBRCs;//PassingByRouteCodes
+		va_start(PBRCs, routeNumber);
+		for (int i = 0; i <= routeNumber; i++) {
+			newFlight.passingByRouteCodes.push_back(va_arg(PBRCs, int));
+		}
+		va_end(PBRCs);
+		newFlight.departureTime = inputTime();
+		newFlight.landingTime = newFlight.departureTime;
+		for (int routeCode : newFlight.passingByRouteCodes) {
+			// Find route
+			auto it1 = find_if(routeList.begin(), routeList.end(),
+				[routeCode](const Route& route) { return route.routeCode == routeCode; });
+			newFlight.totalPrice[0] += it1->price[0];
+			newFlight.totalPrice[1] += it1->price[1];
+			newFlight.totalPrice[2] += it1->price[2];
+			newFlight.landingTime += it1->duration;
+			newFlight.totalDuration += it1->duration;
+			it1->relatedFlightCode.push_back(flightCode);
+		}
+		flightList.push_back(newFlight);
 	}
 
 	//TODO
@@ -678,7 +681,7 @@ public:
 
 		// Save route information
 		ofstream routeCsv("routes.csv"); 
-		routeCsv << "RouteCode,StartSite,EndSite,Distance,EconomyPrice,BusinessPrice,FirstClassPrice,Duration\n";
+		routeCsv << "RouteCode,StartSite,EndSite,Distance,EconomyPrice,BusinessPrice,FirstClassPrice,Duration,RelatedFlightCode\n";
 		for (auto route : routeList) {
 			routeCsv << route.routeCode << ","
 				<< route.relatedSites[0] << ","
@@ -687,15 +690,20 @@ public:
 				<< route.price[0] << ","
 				<< route.price[1] << ","
 				<< route.price[2] << ","
-				<< route.duration << "\n";
+				<< route.duration;
+			for (auto flightCode : route.relatedFlightCode) {
+				routeCsv << "," << flightCode;
+				}
+			routeCsv << "\n";
 		}
 		routeCsv.close();
 
+
 		// Save flight information
 		ofstream flightCsv("flights.csv");
-		flightCsv << "Status,StartSite,EndSite,DepartureTime,ArrivalTime,EconomyRemaining,BusinessRemaining,FirstClassRemaining,EconomyPrice,BusinessPrice,FirstClassPrice,TotalDuration\n";
+		flightCsv << "FlightCode,StartSite,EndSite,DepartureTime,ArrivalTime,EconomyRemaining,BusinessRemaining,FirstClassRemaining,EconomyPrice,BusinessPrice,FirstClassPrice,TotalDuration,PassingByRouteCodes\n";
 		for (auto flight : flightList) {
-			flightCsv << flight.ifValidFlight << ","
+			flightCsv << flight.flightCode << ","
 				<< flight.startSiteCode << ","
 				<< flight.endSiteCode << ","
 				<< flight.departureTime << ","
@@ -706,7 +714,11 @@ public:
 				<< flight.totalPrice[0] << ","
 				<< flight.totalPrice[1] << ","
 				<< flight.totalPrice[2] << ","
-				<< flight.totalDuration << "\n";
+				<< flight.totalDuration;
+				for (auto routeCode : flight.passingByRouteCodes) {
+					flightCsv << "," << routeCode;
+				}
+				flightCsv << "\n";
 		}
 		flightCsv.close();
 
@@ -829,7 +841,7 @@ public:
 				stringstream ss(line);
 				string token;
 
-				if (getline(ss, token, ',')) flight.ifValidFlight = (token == "1");
+				if (getline(ss, token, ',')) flight.flightCode = (token == "1");
 				if (getline(ss, token, ',')) flight.startSiteCode = stoi(token);
 				if (getline(ss, token, ',')) flight.endSiteCode = stoi(token);
 				if (getline(ss, token, ',')) flight.departureTime = stoll(token);
@@ -882,7 +894,6 @@ public:
 		ticketCsv.close();
 	}
 };
-
 
 void SiteScreen() {
 	bool ifExit = false;
@@ -958,11 +969,20 @@ void RouteScreen() {
 		system("cls");
 		switch (action) {
 		case 1:
-			routeSystem.AddRoute();
+			int newAddRouteCode;
+			int siteCodeA;
+			int siteCodeB;
+			cout << "Route code:"; cin >> newAddRouteCode;
+			cout << "Departure site code:"; cin >> siteCodeA;
+			cout << "Landing site code:"; cin >> siteCodeB;
+			routeSystem.AddRoute(newAddRouteCode, siteCodeA, siteCodeB);
 			system("cls");
 			break;
 		case 2:
-			if (routeSystem.DeleteRoute() == true) {
+			int deleteRouteCode;
+			cout << "Enter route code to delete:";
+			cin >> deleteRouteCode;
+			if (routeSystem.DeleteRoute(deleteRouteCode) == true) {
 				cout << "Delete success!" << endl;
 				_getch();
 				system("cls");
@@ -974,7 +994,21 @@ void RouteScreen() {
 			}
 			break;
 		case 3:
-			routeSystem.ModifyRoute();
+			int modifyRouteCode;
+			int newDepartureSiteCode;
+			int newLandingSiteCode;
+			cout << "Enter route code to modify:";
+			cin >> modifyRouteCode;
+			cout << "Enter new departure site code:";
+			cin >> newDepartureSiteCode;
+			cout << "Enter new landing site code:";
+			cin >> newLandingSiteCode;
+			if (routeSystem.ModifyRoute(modifyRouteCode, newDepartureSiteCode, newLandingSiteCode) == true) {
+				cout << "Modify success!" << endl;
+			}
+			else {
+				cout << "Can't modify this route!" << endl;
+			}
 			Sleep(500);
 			_getch();
 			system("cls");
@@ -1066,8 +1100,8 @@ void TicketingScreen() {
 void HomeScreen() {
 	bool ifExit = false;
 	int action = 0;
-	SavingSystem savingSystem;
-	savingSystem.ReadingFromFile();
+	//SavingSystem savingSystem;
+	//savingSystem.ReadingFromFile();
 	while (ifExit != true) {
 		Sleep(100);
 		cout << "1.Site System" << endl
@@ -1128,7 +1162,6 @@ void HomeScreen() {
 		}
 	}
 }
-
 
 
 int main()
